@@ -1,27 +1,25 @@
 # heuristics
 
 Classic construction heuristics and local-search metaheuristics, each in
-one readable, runnable Ruby file. Pure Ruby, zero dependencies — no gems,
-no native extensions, nothing to install. Every demo prints its decisions
-step by step so you can check the arithmetic by eye.
+one readable, runnable Ruby file. You need Ruby and nothing else. Every demo
+prints its decisions step by step so you can check the arithmetic by eye.
 
 ## The shared toy problems
 
 Two tiny instances carry every demo:
 
-**Scalar assignment** — pack four tasks of sizes 6, 2, 4, 7 onto three
+**Scalar assignment.** Pack four tasks of sizes 6, 2, 4, 7 onto three
 machines with capacities 8, 7, 6. Feasibility (no machine overloaded)
 dominates balance (spread between the busiest and quietest machine).
 Construction heuristics build an assignment from scratch; local search
 starts from the overloaded seed `[0, 0, 1, 2]` (energy 104, where energy
-is `100 × overload + imbalance`). The instance is chosen so the stories
-are real: naive orders fail to place the 7-task, single reassignments run
-into a local optimum at energy 101, and every metaheuristic escapes it by
-a different mechanism — all the way down to energy 1.
+is `100 × overload + imbalance`). Naive orders fail to place the 7-task,
+single reassignments get stuck in a local optimum at energy 101, and each
+metaheuristic escapes it its own way, down to energy 1.
 
-**Routing** — one depot (node 0) and four stops on a straight line at
-positions 2, 5, 9, 12. The line metric makes every distance and delta
-mentally checkable.
+**Routing.** One depot (node 0) and four stops on a straight line at
+positions 2, 5, 9, 12. On a line you can check every distance and delta
+in your head.
 
 ## Run
 
@@ -38,7 +36,7 @@ ruby local_search/tabu_search.rb    # or run a file directly
 
 | File | Idea | Outcome on the toy instance |
 |------|------|------------------------------|
-| `construction/first_fit.rb` | first machine with room | t4(7) fits nowhere — construction fails |
+| `construction/first_fit.rb` | first machine with room | t4(7) fits nowhere, construction fails |
 | `construction/first_fit_decreasing.rb` | biggest tasks first | places everything, imbalance 1 |
 | `construction/strongest_fit.rb` | best fit: tightest squeeze | optimal balance 7/6/6 |
 | `construction/strongest_fit_decreasing.rb` | best fit, decreasing | same quality, different route |
@@ -49,7 +47,7 @@ ruby local_search/tabu_search.rb    # or run a file directly
 | `construction/list_regret_insertion.rb` | insert the most-to-lose stop first | regret-driven, costs computed live |
 | `construction/list_clarke_wright.rb` | merge shuttles by savings s(a,b) | 56 → 28 under capacity 4 |
 | `construction/list_k_opt.rb` | reverse segments while it helps | 32 → 24, a 2-opt local optimum |
-| `local_search/hill_climbing.rb` | steepest descent, change moves only | **trapped at 101** — the cautionary tale |
+| `local_search/hill_climbing.rb` | steepest descent, change moves only | stuck at 101 |
 | `local_search/step_counting_hill_climbing.rb` | side steps on a counter budget | escapes to 1 |
 | `local_search/tabu_search.rb` | forbidden reversals + aspiration | escapes to 1 |
 | `local_search/simulated_annealing.rb` | accept worse with exp(−Δ/T), cooling | escapes to 1 |
@@ -58,17 +56,17 @@ ruby local_search/tabu_search.rb    # or run a file directly
 | `local_search/great_deluge.rb` | accept above a draining waterline | escapes to 1 |
 | `local_search/variable_neighborhood_descent.rb` | N1 stuck → switch to N2 | swap rescues descent, 1 |
 
-The hill-climbing trap is the load-bearing joke: same instance, same seed —
-every other file shows why its mechanism exists.
+Hill climbing gets stuck where every other file gets out, on the same
+instance and seed, and each file shows the mechanism that gets it out.
 
 ## Layout
 
 ```text
-lib/style.rb      ANSI colors, banners, gauges, trace lines (no gems)
+lib/style.rb      ANSI colors, banners, gauges, trace lines
 lib/problem.rb    the two toy instances, scoring, the shared neighborhood
 construction/     one self-contained file per construction heuristic
 local_search/     one self-contained file per metaheuristic
 ```
 
-Determinism: randomized demos seed their own `Random.new(42)` and say so,
-so runs are reproducible.
+Randomized demos seed their own `Random.new(42)` and say so, so every run
+prints the same thing.
